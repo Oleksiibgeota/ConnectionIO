@@ -7,9 +7,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class URLConnectionReader {
-    String regexp = "^<head>.*";
+    String regexp = "(<img class=\"card-img img-fluid\" src=)";
     Pattern pattern = Pattern.compile(regexp);
-    Matcher matcher;
+
 
     public URLConnectionReader() throws IOException {
         URL pro100juice = new URL("http://pro100juice.com/");
@@ -18,13 +18,13 @@ public class URLConnectionReader {
                 yc.getInputStream()));
 
         String inputLine;
-        String stringExemple = "<head>";
-        System.out.println("matches" + " " + pattern.matcher(stringExemple).matches());
-        System.out.println("find" + " " + pattern.matcher(stringExemple).find());
+        int num = 0;
         while ((inputLine = in.readLine()) != null) {
-            if (pattern.matcher(in.readLine()).find()) {
-
-                System.out.println(inputLine);
+            if (pattern.matcher(inputLine).find()) {
+                Matcher matcher = pattern.matcher(inputLine);
+                num++;
+                System.out.println("Photo number"  + inputLine.replaceAll(regexp, String.valueOf(num) + " "));
+//                System.out.println(inputLine);
             }
         }
         in.close();
