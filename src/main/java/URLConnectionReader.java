@@ -1,32 +1,41 @@
-import java.io.BufferedReader;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.net.URL;
-import java.net.URLConnection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class URLConnectionReader {
-    String regexp = "(<img class=\"card-img img-fluid\" src=)";
-    Pattern pattern = Pattern.compile(regexp);
+
+    final QName ICON = new QName("http://tehnomir.com.ua/", "icon");
 
 
-    public URLConnectionReader() throws IOException {
-        URL pro100juice = new URL("http://pro100juice.com/");
-        URLConnection yc = pro100juice.openConnection();
-        BufferedReader in = new BufferedReader(new InputStreamReader(
-                yc.getInputStream()));
-
-        String inputLine;
-        int num = 0;
-        while ((inputLine = in.readLine()) != null) {
-            if (pattern.matcher(inputLine).find()) {
-                Matcher matcher = pattern.matcher(inputLine);
-                num++;
-                System.out.println("Photo number"  + inputLine.replaceAll(regexp, String.valueOf(num) + " "));
-//                System.out.println(inputLine);
+    public URLConnectionReader() throws IOException, XMLStreamException {
+        URL technomir = new URL("http://tehnomir.com.ua");
+        InputStream input = technomir.openStream();
+        XMLInputFactory factory = XMLInputFactory.newInstance();
+        XMLEventReader r = factory.createXMLEventReader("http://tehnomir.com.ua/ws/xml.php?act=GetPrice&usr_login=Autounion&usr_passwd=Tvy188&Number=0986479606", input);
+         System.out.println(r.getElementText());
+        try {
+            while (r.hasNext()) {
+                XMLEvent event = r.peek();
+                if (event.isStartElement()) {
+                    StartElement start = event.asStartElement();
+                    if (ICON.equals(start.getName())) {
+                        System.out.println(r.getElementText());
+                        break;
+                    }
+                }
+                System.out.println(r);
+                r.nextEvent();
             }
+
+        } finally {
+            r.close();
         }
-        in.close();
+        input.close();
     }
 }
